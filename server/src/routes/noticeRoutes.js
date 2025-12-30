@@ -1,25 +1,20 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
   createNotice,
-  getNotices
-} = require('../controllers/noticeController');
+  getNotices,
+} = require("../controllers/noticeController");
+const { protect, authorize } = require("../middlewares/authMiddleware");
 
-const { protect, authorize } = require('../middlewares/authMiddleware');
-
-// Create notice
+/* Faculty/Admin */
 router.post(
-  '/notices',
+  "/",
   protect,
-  authorize('admin', 'principal', 'hod'),
+  authorize("faculty", "admin"),
   createNotice
 );
 
-// Get notices
-router.get(
-  '/notices',
-  protect,
-  getNotices
-);
+/* Student/Faculty */
+router.get("/", protect, getNotices);
 
 module.exports = router;

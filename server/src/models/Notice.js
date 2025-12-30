@@ -1,27 +1,32 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const noticeSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true
+      required: true,
     },
-    message: {
+    content: {
       type: String,
-      required: true
+      required: true,
     },
-    createdBy: {
+    priority: {
+      type: String,
+      enum: ["low", "medium", "high"],
+      default: "medium",
+    },
+    postedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
+      ref: "User",
+      required: true,
     },
-    visibleTo: {
-      type: [String],
-      enum: ['student', 'faculty', 'hod', 'principal', 'coe', 'admin'],
-      default: ['student', 'faculty', 'hod', 'principal', 'coe', 'admin']
-    }
+    targetRole: {
+      type: String,
+      enum: ["student", "faculty", "all"],
+      default: "all",
+    },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Notice', noticeSchema);
+module.exports = mongoose.model("Notice", noticeSchema);

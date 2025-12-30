@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
+import FacultyNotices from "./pages/faculty/FacultyNotices";
+
 
 /* ================= STUDENT PAGES ================= */
 import StudentDashboard from "./pages/student/StudentDashboard";
@@ -65,6 +67,16 @@ function AppRoutes() {
           )
         }
       />
+
+<Route
+  path="/faculty/notices"
+  element={
+    <ProtectedRoute allowedRoles={["faculty", "admin"]}>
+      <FacultyNotices />
+    </ProtectedRoute>
+  }
+/>
+
 
       {/* ================= STUDENT ================= */}
       <Route

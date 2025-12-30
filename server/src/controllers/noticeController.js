@@ -1,15 +1,16 @@
-const Notice = require('../models/Notice');
+const Notice = require("../models/Notice");
 
-// Create notice (Admin / Principal / HOD)
+/* ================= POST NOTICE ================= */
 exports.createNotice = async (req, res) => {
   try {
-    const { title, message, visibleTo } = req.body;
+    const { title, content, priority, targetRole } = req.body;
 
     const notice = await Notice.create({
       title,
-      message,
-      visibleTo,
-      createdBy: req.user._id
+      content,
+      priority,
+      targetRole,
+      postedBy: req.user._id,
     });
 
     res.status(201).json(notice);
@@ -18,12 +19,16 @@ exports.createNotice = async (req, res) => {
   }
 };
 
-// Get notices for logged-in user
+/* ================= GET NOTICES ================= */
 exports.getNotices = async (req, res) => {
   try {
+    const role = req.user.role;
+
     const notices = await Notice.find({
-      visibleTo: req.user.role
-    }).sort({ createdAt: -1 });
+      $or: [{ targetRole: "all" }, { targetRole: role }],
+    })
+      .sort({ createdAt: -1 })
+      .populate("postedBy", "name role");
 
     res.json(notices);
   } catch (error) {
