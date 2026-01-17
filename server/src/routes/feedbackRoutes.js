@@ -1,27 +1,15 @@
 const express = require("express");
 const router = express.Router();
-
 const {
   submitFeedback,
   getFacultyFeedback,
 } = require("../controllers/feedbackController");
+const { protect } = require("../middlewares/authMiddleware");
 
-const { protect, authorize } = require("../middlewares/authMiddleware");
+/* Student */
+router.post("/", protect, submitFeedback);
 
-/* ================= STUDENT ================= */
-router.post(
-  "/",
-  protect,
-  authorize("student"),
-  submitFeedback
-);
-
-/* ================= FACULTY ================= */
-router.get(
-  "/faculty",
-  protect,
-  authorize("faculty"),
-  getFacultyFeedback
-);
+/* Faculty */
+router.get("/faculty", protect, getFacultyFeedback);
 
 module.exports = router;

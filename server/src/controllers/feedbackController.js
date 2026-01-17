@@ -1,6 +1,6 @@
 const Feedback = require("../models/Feedback");
 
-/* ================= STUDENT ================= */
+/* STUDENT → submit */
 exports.submitFeedback = async (req, res) => {
   try {
     const { faculty, subject, rating, comment } = req.body;
@@ -19,7 +19,7 @@ exports.submitFeedback = async (req, res) => {
   }
 };
 
-/* ================= FACULTY ================= */
+/* FACULTY → view */
 exports.getFacultyFeedback = async (req, res) => {
   try {
     const feedbacks = await Feedback.find({

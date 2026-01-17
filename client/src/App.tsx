@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
 import FacultyNotices from "./pages/faculty/FacultyNotices";
+import FacultyFeedback from "./pages/faculty/FacultyFeedback";
 
 
 /* ================= STUDENT PAGES ================= */
@@ -73,6 +74,15 @@ function AppRoutes() {
   element={
     <ProtectedRoute allowedRoles={["faculty", "admin"]}>
       <FacultyNotices />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/faculty/feedback"
+  element={
+    <ProtectedRoute allowedRoles={["faculty"]}>
+      <FacultyFeedback />
     </ProtectedRoute>
   }
 />
