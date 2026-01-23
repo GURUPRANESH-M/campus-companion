@@ -9,6 +9,9 @@ const attendanceRoutes = require("./routes/attendanceRoutes");
 const internalMarkRoutes = require("./routes/internalMarkRoutes");
 const feedbackRoutes = require("./routes/feedbackRoutes");
 const noticeRoutes = require("./routes/noticeRoutes");
+const hodRoutes = require("./routes/hodRoutes");
+const hodGrievanceRoutes = require("./routes/hodGrievanceRoutes");
+
 
 const app = express();
 
@@ -22,6 +25,8 @@ app.use("/api/attendance", attendanceRoutes);
 app.use("/api/internal-marks", internalMarkRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/notices", noticeRoutes);
+app.use("/api/hod", hodRoutes);
+app.use("/api/hod", hodGrievanceRoutes);
 
 
 

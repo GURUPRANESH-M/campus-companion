@@ -27,7 +27,7 @@ export default function FacultyDashboard() {
         <div className="dashboard-grid">
           <StatCard
             title="Total Students"
-            value="125"
+            value="1"
             subtitle="Across 3 sections"
             icon={<Users size={24} />}
             iconClassName="bg-primary/10 text-primary"
@@ -41,7 +41,7 @@ export default function FacultyDashboard() {
           />
           <StatCard
             title="Avg Feedback"
-            value="4.5"
+            value="5.0"
             subtitle="Out of 5.0"
             icon={<BarChart3 size={24} />}
             iconClassName="bg-success/10 text-success"

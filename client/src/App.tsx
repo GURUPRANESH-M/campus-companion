@@ -6,8 +6,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
-import FacultyNotices from "./pages/faculty/FacultyNotices";
-import FacultyFeedback from "./pages/faculty/FacultyFeedback";
 
 
 /* ================= STUDENT PAGES ================= */
@@ -22,12 +20,20 @@ import StudentNotices from "./pages/student/StudentNotices";
 import FacultyDashboard from "./pages/faculty/FacultyDashboard";
 import FacultyAttendance from "./pages/faculty/FacultyAttendance";
 import FacultyMarks from "./pages/faculty/FacultyMarks";
+import FacultyNotices from "./pages/faculty/FacultyNotices";
+import FacultyFeedback from "./pages/faculty/FacultyFeedback";
+import HODStudentPerformance from "./pages/hod/HODStudentPerformance";
+
 
 /* ================= OTHER ROLES ================= */
 import HODDashboard from "./pages/hod/HODDashboard";
 import PrincipalDashboard from "./pages/principal/PrincipalDashboard";
 import CoEDashboard from "./pages/coe/CoEDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import HODFaculty from "./pages/hod/HODFaculty";
+import HODGrievances from "./pages/hod/HODGrievances";
+
+
 
 const queryClient = new QueryClient();
 
@@ -83,6 +89,35 @@ function AppRoutes() {
   element={
     <ProtectedRoute allowedRoles={["faculty"]}>
       <FacultyFeedback />
+    </ProtectedRoute>
+  }
+/>
+
+
+<Route
+    path="/hod/performance"
+    element={
+      <ProtectedRoute allowedRoles={["hod"]}>
+        <HODStudentPerformance />
+      </ProtectedRoute>
+    }
+  />
+
+
+<Route
+  path="/hod/faculty"
+  element={
+    <ProtectedRoute allowedRoles={["hod"]}>
+      <HODFaculty />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/hod/grievances"
+  element={
+    <ProtectedRoute allowedRoles={["hod"]}>
+      <HODGrievances />
     </ProtectedRoute>
   }
 />

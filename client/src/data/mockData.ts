@@ -106,35 +106,35 @@ export interface Grievance {
 }
 
 export const mockGrievances: Grievance[] = [
-  {
-    id: 'GRV001',
-    title: 'AC not working in Lab 3',
-    description: 'The air conditioning unit in Computer Lab 3 has not been functioning for the past week.',
-    status: 'in-progress',
-    submittedBy: 'Rahul Sharma',
-    submittedDate: '2024-12-01',
-    category: 'Infrastructure',
-    department: 'Computer Science',
-  },
-  {
-    id: 'GRV002',
-    title: 'Attendance discrepancy',
-    description: 'My attendance for CS302 shows 75% but I have attended all classes.',
-    status: 'pending',
-    submittedBy: 'Priya Mehta',
-    submittedDate: '2024-12-03',
-    category: 'Academic',
-    department: 'Computer Science',
-  },
-  {
-    id: 'GRV003',
-    title: 'Exam hall allocation issue',
-    description: 'The exam schedule shows conflicting timing for two subjects.',
-    status: 'escalated',
-    submittedBy: 'Amit Kumar',
-    submittedDate: '2024-12-05',
-    category: 'Examination',
-  },
+  // {
+  //   id: 'GRV001',
+  //   title: 'AC not working in Lab 3',
+  //   description: 'The air conditioning unit in Computer Lab 3 has not been functioning for the past week.',
+  //   status: 'in-progress',
+  //   submittedBy: 'Rahul Sharma',
+  //   submittedDate: '2024-12-01',
+  //   category: 'Infrastructure',
+  //   department: 'Computer Science',
+  // },
+  // {
+  //   id: 'GRV002',
+  //   title: 'Attendance discrepancy',
+  //   description: 'My attendance for CS302 shows 75% but I have attended all classes.',
+  //   status: 'pending',
+  //   submittedBy: 'Priya Mehta',
+  //   submittedDate: '2024-12-03',
+  //   category: 'Academic',
+  //   department: 'Computer Science',
+  // },
+  // {
+  //   id: 'GRV003',
+  //   title: 'Exam hall allocation issue',
+  //   description: 'The exam schedule shows conflicting timing for two subjects.',
+  //   status: 'escalated',
+  //   submittedBy: 'Amit Kumar',
+  //   submittedDate: '2024-12-05',
+  //   category: 'Examination',
+  // },
 ];
 
 export interface FeedbackReport {
