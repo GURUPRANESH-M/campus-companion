@@ -57,10 +57,11 @@ export default function LoginPage() {
             <div className="w-16 h-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center">
               <GraduationCap size={36} />
             </div>
-            <h1 className="font-serif text-4xl font-bold">CMS</h1>
+            <h1 className="font-serif text-4xl font-bold">INTEGRATED MULTI-FUNCTIONAL PLATFORM FOR ACADEMIC AND STUDENT ADMINISTRATION IN HIGHER EDUCATION 
+            </h1>
           </div>
           <h2 className="font-serif text-5xl font-bold mb-6">
-            College Management<br />System
+          <br />
           </h2>
           <p className="text-xl opacity-80 max-w-md">
             A unified platform for managing academics and institutional workflows.
