@@ -19,6 +19,7 @@ const coeRoutes = require("./routes/coeRoutes");
 const examRoutes = require("./routes/examRoutes");
 const resultRoutes = require("./routes/resultRoutes");
 const examGrievanceRoutes = require("./routes/examGrievanceRoutes");
+const subjectRoutes = require("./routes/subjectRoutes");
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use("/api/coe", coeRoutes);
 app.use("/api/exams", examRoutes);
 app.use("/api/results", resultRoutes);
 app.use("/api/exam-grievances", examGrievanceRoutes);
+app.use("/api/subjects", subjectRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend is running");

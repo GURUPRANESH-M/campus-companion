@@ -18,7 +18,9 @@ import {
   Menu,
   X,
   AlertTriangle,
-  Award
+  Award,
+  BookOpen,
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -56,6 +58,7 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
   principal: [
     { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/principal' },
     { label: 'Announcements', icon: <Bell size={20} />, path: '/principal/announcements' },
+    { label: 'Curriculum Subjects', icon: <BookOpen size={20} />, path: '/principal/subjects' },
     { label: 'Grievances', icon: <AlertTriangle size={20} />, path: '/principal/grievances' },
     { label: 'Reports', icon: <BarChart3 size={20} />, path: '/principal/reports' },
   ],
@@ -111,7 +114,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
               <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
                 <GraduationCap size={22} />
               </div>
-              <span className="font-serif font-bold text-white">CMS</span>
+              <span className="font-serif font-bold text-white">Portal</span>
             </div>
           )}
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>

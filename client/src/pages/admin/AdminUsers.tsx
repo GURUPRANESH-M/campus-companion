@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { roleLabels, UserRole } from "@/data/mockData";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, Search } from "lucide-react";
 
 import {
   Table,
@@ -57,8 +57,14 @@ const departments = [
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<any[]>([]);
+  const [subjects, setSubjects] = useState<any[]>([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+
+  // Filters
+  const [filterRole, setFilterRole] = useState("ALL");
+  const [filterDept, setFilterDept] = useState("ALL");
+  const [searchName, setSearchName] = useState("");
 
   const { toast } = useToast();
 
@@ -70,6 +76,7 @@ export default function AdminUsers() {
     department: "",
     year: "",
     section: "",
+    handlingSubjects: [] as string[],
   });
 
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -79,7 +86,20 @@ export default function AdminUsers() {
   ============================== */
   useEffect(() => {
     fetchUsers();
+    fetchSubjects();
   }, []);
+
+  const fetchSubjects = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("http://localhost:5000/api/subjects", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSubjects(res.data);
+    } catch (error) {
+      console.error("Error loading subjects", error);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -126,6 +146,7 @@ export default function AdminUsers() {
         department: "",
         year: "",
         section: "",
+        handlingSubjects: [],
       });
 
     } catch (error: any) {
@@ -215,141 +236,205 @@ export default function AdminUsers() {
       <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
 
         {/* HEADER */}
-        <div className="p-6 border-b flex justify-between">
-          <h3 className="font-semibold text-lg">
+        <div className="p-6 border-b flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="font-semibold text-lg flex-shrink-0">
             Manage Users
           </h3>
 
-          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus size={16} /> Add User
-              </Button>
-            </DialogTrigger>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            {/* Search by Name */}
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
+              <Input
+                placeholder="Search name..."
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                className="pl-8 w-[160px] h-9"
+              />
+            </div>
 
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add User</DialogTitle>
-              </DialogHeader>
+            {/* Filter by Role */}
+            <Select value={filterRole} onValueChange={setFilterRole}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="All Roles" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Roles</SelectItem>
+                {Object.entries(roleLabels).map(([r, label]) => (
+                  <SelectItem key={r} value={r}>{label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              <div className="space-y-4 mt-4">
+            {/* Filter by Department */}
+            <Select value={filterDept} onValueChange={setFilterDept}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="All Depts" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Depts</SelectItem>
+                <SelectItem value="COE">COE</SelectItem>
+                {departments.map((d) => (
+                  <SelectItem key={d} value={d}>{d}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-                <Input
-                  placeholder="Full Name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      name: e.target.value,
-                    })
-                  }
-                />
+            <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus size={16} /> Add User
+                </Button>
+              </DialogTrigger>
 
-                <Input
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      email: e.target.value,
-                    })
-                  }
-                />
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add User</DialogTitle>
+                </DialogHeader>
 
-                <Input
-                  type="password"
-                  placeholder="Password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      password: e.target.value,
-                    })
-                  }
-                />
+                <div className="space-y-4 mt-4">
 
-                {/* ROLE */}
-                <Select
-                  onValueChange={(value) =>
-                    setFormData({
-                      ...formData,
-                      role: value,
-                    })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(roleLabels).map(
-                      ([role, label]) => (
-                        <SelectItem key={role} value={role}>
-                          {label}
-                        </SelectItem>
-                      )
-                    )}
-                  </SelectContent>
-                </Select>
+                  <Input
+                    placeholder="Full Name"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        name: e.target.value,
+                      })
+                    }
+                  />
 
-                {/* DEPARTMENT (Hidden for Principal/Admin/COE) */}
-                {formData.role !== "principal" &&
-                  formData.role !== "admin" &&
-                  formData.role !== "coe" && (
-                    <Select
-                      onValueChange={(value) =>
-                        setFormData({
-                          ...formData,
-                          department: value,
-                        })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select department" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {departments.map((dept) => (
-                          <SelectItem key={dept} value={dept}>
-                            {dept}
+                  <Input
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        email: e.target.value,
+                      })
+                    }
+                  />
+
+                  <Input
+                    type="password"
+                    placeholder="Password"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        password: e.target.value,
+                      })
+                    }
+                  />
+
+                  {/* ROLE */}
+                  <Select
+                    onValueChange={(value) =>
+                      setFormData({
+                        ...formData,
+                        role: value,
+                      })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(roleLabels).map(
+                        ([role, label]) => (
+                          <SelectItem key={role} value={role}>
+                            {label}
                           </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        )
+                      )}
+                    </SelectContent>
+                  </Select>
+
+                  {/* DEPARTMENT (Hidden for Principal/Admin/COE) */}
+                  {formData.role !== "principal" &&
+                    formData.role !== "admin" &&
+                    formData.role !== "coe" && (
+                      <Select
+                        onValueChange={(value) =>
+                          setFormData({
+                            ...formData,
+                            department: value,
+                          })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select department" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {departments.map((dept) => (
+                            <SelectItem key={dept} value={dept}>
+                              {dept}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+
+                  {/* STUDENT EXTRA FIELDS */}
+                  {formData.role === "student" && (
+                    <>
+                      <Input
+                        placeholder="Year"
+                        value={formData.year}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            year: e.target.value,
+                          })
+                        }
+                      />
+
+                      <Input
+                        placeholder="Section"
+                        value={formData.section}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            section: e.target.value,
+                          })
+                        }
+                      />
+                    </>
                   )}
 
-                {/* STUDENT EXTRA FIELDS */}
-                {formData.role === "student" && (
-                  <>
-                    <Input
-                      placeholder="Year"
-                      value={formData.year}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          year: e.target.value,
-                        })
-                      }
-                    />
+                  {/* FACULTY SUBJECTS */}
+                  {formData.role === "faculty" && (
+                    <div className="space-y-2 border p-3 rounded-md">
+                      <label className="text-sm font-medium">Handling Subjects (Select multiple)</label>
+                      <div className="max-h-32 overflow-y-auto space-y-1">
+                        {subjects.map(sub => (
+                          <div key={sub._id} className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={formData.handlingSubjects.includes(sub._id)}
+                              onChange={(e) => {
+                                const newSubjects = e.target.checked
+                                  ? [...formData.handlingSubjects, sub._id]
+                                  : formData.handlingSubjects.filter(id => id !== sub._id);
+                                setFormData({ ...formData, handlingSubjects: newSubjects });
+                              }}
+                            />
+                            <span className="text-sm">{sub.subjectName} ({sub.subjectCode})</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-                    <Input
-                      placeholder="Section"
-                      value={formData.section}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          section: e.target.value,
-                        })
-                      }
-                    />
-                  </>
-                )}
+                  <Button onClick={handleAddUser} className="w-full">
+                    Create
+                  </Button>
 
-                <Button onClick={handleAddUser} className="w-full">
-                  Create
-                </Button>
-
-              </div>
-            </DialogContent>
-          </Dialog>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* TABLE */}
@@ -367,43 +452,47 @@ export default function AdminUsers() {
           </TableHeader>
 
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user._id}>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={roleBadgeColors[user.role]}
-                  >
-                    {roleLabels[user.role]}
-                  </Badge>
-                </TableCell>
-                <TableCell>{user.department}</TableCell>
-                <TableCell className="text-right">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => {
-                      setSelectedUser(user);
-                      setIsEditOpen(true);
-                    }}
-                  >
-                    <Edit size={14} />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() =>
-                      window.confirm("Delete this user?") &&
-                      handleDeleteUser(user._id)
-                    }
-                  >
-                    <Trash2 size={14} />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {users
+              .filter(u => filterRole === "ALL" || u.role === filterRole)
+              .filter(u => filterDept === "ALL" || u.department === filterDept)
+              .filter(u => u.name.toLowerCase().includes(searchName.toLowerCase()))
+              .map((user) => (
+                <TableRow key={user._id}>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={roleBadgeColors[user.role]}
+                    >
+                      {roleLabels[user.role]}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{user.department}</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setIsEditOpen(true);
+                      }}
+                    >
+                      <Edit size={14} />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() =>
+                        window.confirm("Delete this user?") &&
+                        handleDeleteUser(user._id)
+                      }
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </div>
@@ -481,6 +570,31 @@ export default function AdminUsers() {
                   ))}
                 </SelectContent>
               </Select>
+
+              {/* FACULTY EDIT HANDLING SUBJECTS */}
+              {selectedUser.role === "faculty" && (
+                <div className="space-y-2 border p-3 rounded-md">
+                  <label className="text-sm font-medium">Handling Subjects (Select multiple)</label>
+                  <div className="max-h-32 overflow-y-auto space-y-1">
+                    {subjects.map(sub => (
+                      <div key={sub._id} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedUser.handlingSubjects?.includes(sub._id)}
+                          onChange={(e) => {
+                            const current = selectedUser.handlingSubjects || [];
+                            const newSubjects = e.target.checked
+                              ? [...current, sub._id]
+                              : current.filter((id: string) => id !== sub._id);
+                            setSelectedUser({ ...selectedUser, handlingSubjects: newSubjects });
+                          }}
+                        />
+                        <span className="text-sm">{sub.subjectName} ({sub.subjectCode})</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <Button onClick={handleUpdateUser} className="w-full">
                 Update

@@ -31,7 +31,7 @@ exports.getAllUsers = async (req, res) => {
  */
 exports.createUser = async (req, res) => {
   try {
-    let { name, email, password, role, department, year, section } = req.body;
+    let { name, email, password, role, department, year, section, handlingSubjects } = req.body;
 
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: "Required fields missing" });
@@ -59,6 +59,7 @@ exports.createUser = async (req, res) => {
       department,
       year,
       section,
+      handlingSubjects: role === "faculty" ? handlingSubjects : undefined
     });
 
     await user.save();
@@ -83,7 +84,7 @@ exports.createUser = async (req, res) => {
  */
 exports.updateUser = async (req, res) => {
   try {
-    const { name, email, role, department, year, section, isActive } = req.body;
+    const { name, email, role, department, year, section, handlingSubjects, isActive } = req.body;
 
     const user = await User.findById(req.params.id);
 
@@ -98,6 +99,10 @@ exports.updateUser = async (req, res) => {
     user.year = year || user.year;
     user.section = section || user.section;
     user.isActive = isActive ?? user.isActive;
+
+    if (role === "faculty" && handlingSubjects) {
+      user.handlingSubjects = handlingSubjects;
+    }
 
     const updatedUser = await user.save();
 

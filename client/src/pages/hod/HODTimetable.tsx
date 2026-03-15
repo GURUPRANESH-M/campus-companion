@@ -17,7 +17,7 @@ export default function HODTimetable() {
   const { toast } = useToast();
 
   const [facultyList, setFacultyList] = useState<any[]>([]);
-  const [selectedFaculty, setSelectedFaculty] = useState("");
+  const [selectedFaculty, setSelectedFaculty] = useState<any>(null);
 
   const [grid, setGrid] = useState<any>({});
   const [loading, setLoading] = useState(false);
@@ -34,6 +34,9 @@ export default function HODTimetable() {
       setGrid({});
     }
   }, [selectedFaculty]);
+
+  const activeFacultyDetails = facultyList.find(f => f._id === selectedFaculty);
+  const activeFacultySubjects = activeFacultyDetails?.handlingSubjects || [];
 
   const fetchFaculty = async () => {
     try {
@@ -160,12 +163,26 @@ export default function HODTimetable() {
                       {periods.map(period => (
                         <td key={period} className="border p-2">
                           <Card className="p-2 space-y-2 border-primary/20 bg-background/50 hover:shadow-md transition">
-                            <Input
-                              className="h-8 text-xs"
-                              placeholder="Subject"
+                            <Select
                               value={grid[day]?.[period]?.subject || ""}
-                              onChange={(e) => handleChange(day, period, "subject", e.target.value)}
-                            />
+                              onValueChange={(val) => handleChange(day, period, "subject", val)}
+                            >
+                              <SelectTrigger className="h-8 text-xs px-2">
+                                <SelectValue placeholder="Select Subject" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {activeFacultySubjects.map((sub: any) => (
+                                  <SelectItem key={sub.subjectCode} value={sub.subjectCode}>
+                                    {sub.subjectName} ({sub.subjectCode})
+                                  </SelectItem>
+                                ))}
+                                {activeFacultySubjects.length === 0 && (
+                                  <SelectItem value="none" disabled>
+                                    No subjects assigned
+                                  </SelectItem>
+                                )}
+                              </SelectContent>
+                            </Select>
                             <div className="flex gap-1 justify-between">
                               <Select
                                 value={grid[day]?.[period]?.department || ""}

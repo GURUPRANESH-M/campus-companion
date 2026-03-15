@@ -56,6 +56,11 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
+    handlingSubjects: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Subject'
+    }],
+
     isActive: {
       type: Boolean,
       default: true,

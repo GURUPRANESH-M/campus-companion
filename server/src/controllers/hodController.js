@@ -9,7 +9,9 @@ exports.getDepartmentFaculty = async (req, res) => {
     const faculty = await User.find({
       role: "faculty",
       department: req.user.department,
-    }).select("name email department");
+    })
+      .select("name email department handlingSubjects")
+      .populate("handlingSubjects");
 
     res.json(faculty);
   } catch (error) {

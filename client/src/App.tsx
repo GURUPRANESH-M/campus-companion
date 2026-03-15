@@ -33,6 +33,7 @@ import HODStudentPerformance from "./pages/hod/HODStudentPerformance";
 import HODDashboard from "./pages/hod/HODDashboard";
 import PrincipalDashboard from "./pages/principal/PrincipalDashboard";
 import PrincipalAnnouncements from "./pages/principal/PrincipalAnnouncements";
+import PrincipalSubjects from "./pages/principal/PrincipalSubjects";
 import PrincipalGrievances from "./pages/principal/PrincipalGrievances";
 import PrincipalReports from "./pages/principal/PrincipalReports";
 import CoEDashboard from "./pages/coe/CoEDashboard";
@@ -248,6 +249,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["principal"]}>
             <PrincipalDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/principal/subjects"
+        element={
+          <ProtectedRoute allowedRoles={["principal"]}>
+            <PrincipalSubjects />
           </ProtectedRoute>
         }
       />
