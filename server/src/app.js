@@ -11,7 +11,14 @@ const feedbackRoutes = require("./routes/feedbackRoutes");
 const noticeRoutes = require("./routes/noticeRoutes");
 const hodRoutes = require("./routes/hodRoutes");
 const hodGrievanceRoutes = require("./routes/hodGrievanceRoutes");
-
+const adminRoutes = require("./routes/adminRoutes");
+const grievanceRoutes = require("./routes/grievanceRoutes");
+const facultyRoutes = require("./routes/facultyRoutes");
+const principalRoutes = require("./routes/principalRoutes");
+const coeRoutes = require("./routes/coeRoutes");
+const examRoutes = require("./routes/examRoutes");
+const resultRoutes = require("./routes/resultRoutes");
+const examGrievanceRoutes = require("./routes/examGrievanceRoutes");
 
 const app = express();
 
@@ -27,8 +34,14 @@ app.use("/api/feedback", feedbackRoutes);
 app.use("/api/notices", noticeRoutes);
 app.use("/api/hod", hodRoutes);
 app.use("/api/hod", hodGrievanceRoutes);
-
-
+app.use("/api/admin", adminRoutes);
+app.use("/api/grievances", grievanceRoutes);
+app.use("/api/faculty", facultyRoutes);
+app.use("/api/principal", principalRoutes);
+app.use("/api/coe", coeRoutes);
+app.use("/api/exams", examRoutes);
+app.use("/api/results", resultRoutes);
+app.use("/api/exam-grievances", examGrievanceRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend is running");

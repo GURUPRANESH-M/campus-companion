@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import api from "@/api/api";
+
 import {
   Table,
   TableBody,
@@ -9,8 +10,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+
 import {
   Select,
   SelectContent,
@@ -25,43 +27,80 @@ type Grievance = {
   description: string;
   status: string;
   createdAt: string;
+
   student: {
     name: string;
     email: string;
+    department?: string;
   };
 };
 
 export default function HODGrievances() {
-  const [grievances, setGrievances] = useState<Grievance[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [grievances, setGrievances] =
+    useState<Grievance[]>([]);
 
-  const fetchGrievances = () => {
-    api
-      .get("/hod/grievances")
-      .then((res) => setGrievances(res.data))
-      .catch(() => alert("Failed to load grievances"))
-      .finally(() => setLoading(false));
+  const [loading, setLoading] =
+    useState(true);
+
+  /* ===============================
+     FETCH GRIEVANCES
+  ============================== */
+  const fetchGrievances = async () => {
+    try {
+      setLoading(true);
+
+      // ✅ Correct backend route
+      const res = await api.get(
+        "/grievances"
+      );
+
+      setGrievances(res.data);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to load grievances");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchGrievances();
   }, []);
 
-  const updateStatus = async (id: string, status: string) => {
+  /* ===============================
+     UPDATE STATUS
+  ============================== */
+  const updateStatus = async (
+    id: string,
+    status: string
+  ) => {
     try {
-      await api.patch(`/hod/grievances/${id}`, { status });
+      await api.put(
+        `/grievances/${id}`,
+        {
+          status,
+        }
+      );
+
+      // refresh list
       fetchGrievances();
-    } catch {
+    } catch (error) {
+      console.error(error);
       alert("Failed to update status");
     }
   };
 
+  /* ===============================
+     STATUS COLOR
+  ============================== */
   const statusColor = (status: string) => {
     switch (status) {
       case "resolved":
         return "text-success border-success";
-      case "in-progress":
+
+      case "in_progress":
         return "text-warning border-warning";
+
       default:
         return "text-destructive border-destructive";
     }
@@ -70,7 +109,9 @@ export default function HODGrievances() {
   if (loading) {
     return (
       <DashboardLayout>
-        <p className="text-muted-foreground">Loading grievances...</p>
+        <p className="text-muted-foreground">
+          Loading grievances...
+        </p>
       </DashboardLayout>
     );
   }
@@ -78,31 +119,54 @@ export default function HODGrievances() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
+
+        {/* HEADER */}
         <div>
           <h1 className="font-serif text-2xl font-bold">
             Department Grievances
           </h1>
+
           <p className="text-muted-foreground">
             Review and resolve student grievances
           </p>
         </div>
 
+        {/* TABLE */}
         <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
-                <TableHead>Student</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Action</TableHead>
+                <TableHead>
+                  Student
+                </TableHead>
+
+                <TableHead>
+                  Title
+                </TableHead>
+
+                <TableHead>
+                  Status
+                </TableHead>
+
+                <TableHead>
+                  Date
+                </TableHead>
+
+                <TableHead className="text-right">
+                  Action
+                </TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
+
               {grievances.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
+                  <TableCell
+                    colSpan={5}
+                    className="text-center py-6 text-muted-foreground"
+                  >
                     No grievances found
                   </TableCell>
                 </TableRow>
@@ -110,46 +174,82 @@ export default function HODGrievances() {
 
               {grievances.map((g) => (
                 <TableRow key={g._id}>
+
+                  {/* STUDENT */}
                   <TableCell>
-                    <p className="font-medium">{g.student.name}</p>
+                    <p className="font-medium">
+                      {g.student?.name}
+                    </p>
+
                     <p className="text-xs text-muted-foreground">
-                      {g.student.email}
+                      {g.student?.email}
                     </p>
                   </TableCell>
-                  <TableCell>{g.title}</TableCell>
+
+                  {/* TITLE */}
+                  <TableCell>
+                    {g.title}
+                  </TableCell>
+
+                  {/* STATUS */}
                   <TableCell>
                     <Badge
                       variant="outline"
-                      className={statusColor(g.status)}
+                      className={statusColor(
+                        g.status
+                      )}
                     >
                       {g.status}
                     </Badge>
                   </TableCell>
+
+                  {/* DATE */}
                   <TableCell>
-                    {new Date(g.createdAt).toLocaleDateString()}
+                    {new Date(
+                      g.createdAt
+                    ).toLocaleDateString()}
                   </TableCell>
+
+                  {/* ACTION */}
                   <TableCell className="text-right">
+
                     <Select
+                      defaultValue={g.status}
                       onValueChange={(value) =>
-                        updateStatus(g._id, value)
+                        updateStatus(
+                          g._id,
+                          value
+                        )
                       }
                     >
-                      <SelectTrigger className="w-[130px]">
-                        <SelectValue placeholder="Update" />
+                      <SelectTrigger className="w-[150px]">
+                        <SelectValue />
                       </SelectTrigger>
+
                       <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="in-progress">
+                        <SelectItem value="open">
+                          Open
+                        </SelectItem>
+
+                        <SelectItem value="in_progress">
                           In Progress
                         </SelectItem>
-                        <SelectItem value="resolved">Resolved</SelectItem>
+
+                        <SelectItem value="resolved">
+                          Resolved
+                        </SelectItem>
                       </SelectContent>
+
                     </Select>
+
                   </TableCell>
+
                 </TableRow>
               ))}
+
             </TableBody>
           </Table>
+
         </div>
       </div>
     </DashboardLayout>

@@ -5,9 +5,18 @@ const Grievance = require("../models/Grievance");
    ========================= */
 exports.getDepartmentGrievances = async (req, res) => {
   try {
-    const grievances = await Grievance.find({
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    const query = {
       department: req.user.department,
-    })
+      $or: [
+        { status: { $ne: "resolved" } },
+        { status: "resolved", updatedAt: { $gte: oneWeekAgo } }
+      ]
+    };
+
+    const grievances = await Grievance.find(query)
       .populate("student", "name email")
       .sort({ createdAt: -1 });
 

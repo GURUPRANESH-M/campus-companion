@@ -1,146 +1,317 @@
-import { useState } from 'react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { GrievanceCard } from '@/components/dashboard/GrievanceCard';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { mockGrievances, Grievance } from '@/data/mockData';
-import { Plus, Send } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from "react";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { GrievanceCard } from "@/components/dashboard/GrievanceCard";
 
-const categories = ['Academic', 'Infrastructure', 'Examination', 'Hostel', 'Library', 'Other'];
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+import api from "@/api/api";
+import { Plus, Send } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+/* ✅ MUST MATCH BACKEND ENUM */
+const categories = [
+ { label:"Academic", value:"academic"},
+ { label:"Examination", value:"exam"},
+ { label:"Hostel", value:"hostel"},
+ { label:"Administration", value:"admin"},
+ { label:"Other", value:"other"}
+];
 
 export default function StudentGrievances() {
-  const [grievances, setGrievances] = useState<Grievance[]>(mockGrievances);
-  const [isOpen, setIsOpen] = useState(false);
-  const [newGrievance, setNewGrievance] = useState({
-    title: '',
-    description: '',
-    category: '',
+
+  const [grievances, setGrievances] =
+    useState<any[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [isOpen, setIsOpen] =
+    useState(false);
+
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    category: "",
   });
+
   const { toast } = useToast();
 
-  const handleSubmit = () => {
-    if (!newGrievance.title || !newGrievance.description || !newGrievance.category) {
+  /* =====================
+     FETCH GRIEVANCES
+  ===================== */
+  const fetchGrievances = async () => {
+    try {
+      const res =
+        await api.get(
+          "/grievances/my"
+        );
+
+      setGrievances(res.data);
+    } catch (error) {
+      console.error(error);
+
       toast({
-        title: "Missing Information",
-        description: "Please fill all fields before submitting.",
-        variant: "destructive",
+        title:
+          "Failed loading grievances",
+        variant:
+          "destructive",
       });
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    const grievance: Grievance = {
-      id: `GRV${String(grievances.length + 1).padStart(3, '0')}`,
-      title: newGrievance.title,
-      description: newGrievance.description,
-      category: newGrievance.category,
-      status: 'pending',
-      submittedBy: 'Rahul Sharma',
-      submittedDate: new Date().toISOString().split('T')[0],
-      department: 'Computer Science',
-    };
-
-    setGrievances([grievance, ...grievances]);
-    setNewGrievance({ title: '', description: '', category: '' });
-    setIsOpen(false);
-    toast({
-      title: "Grievance Submitted",
-      description: "Your grievance has been submitted successfully.",
-    });
   };
 
-  const pendingCount = grievances.filter(g => g.status === 'pending').length;
-  const inProgressCount = grievances.filter(g => g.status === 'in-progress').length;
-  const resolvedCount = grievances.filter(g => g.status === 'resolved').length;
+  useEffect(() => {
+    fetchGrievances();
+  }, []);
+
+  /* =====================
+     SUBMIT
+  ===================== */
+  const handleSubmit =
+    async () => {
+
+      if (
+        !form.title ||
+        !form.description ||
+        !form.category
+      ) {
+        toast({
+          title:
+            "Fill all fields",
+          variant:
+            "destructive",
+        });
+        return;
+      }
+
+      try {
+
+        await api.post(
+          "/grievances",
+          form
+        );
+
+        toast({
+          title:
+            "Grievance Submitted",
+        });
+
+        setForm({
+          title: "",
+          description: "",
+          category: "",
+        });
+
+        setIsOpen(false);
+
+        fetchGrievances();
+
+      } catch (error) {
+
+        console.error(error);
+
+        toast({
+          title:
+            "Failed submission",
+          description:
+            "Check category or login",
+          variant:
+            "destructive",
+        });
+      }
+    };
+
+  /* STATUS COUNTS */
+
+  const pending =
+    grievances.filter(
+      (g) =>
+        g.status === "open"
+    ).length;
+
+  const progress =
+    grievances.filter(
+      (g) =>
+        g.status ===
+        "in_progress"
+    ).length;
+
+  const resolved =
+    grievances.filter(
+      (g) =>
+        g.status ===
+        "resolved"
+    ).length;
+
+  if (loading)
+    return (
+      <DashboardLayout>
+        Loading...
+      </DashboardLayout>
+    );
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="font-serif text-2xl font-bold text-foreground">Grievances</h1>
-            <p className="text-muted-foreground">Submit and track your complaints</p>
-          </div>
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+
+        {/* HEADER */}
+        <div className="flex justify-between">
+
+          <h1 className="text-2xl font-bold">
+            Grievances
+          </h1>
+
+          <Dialog
+            open={isOpen}
+            onOpenChange={
+              setIsOpen
+            }
+          >
             <DialogTrigger asChild>
-              <Button variant="gradient">
-                <Plus size={18} />
-                New Grievance
+              <Button>
+                <Plus />
+                New
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
+
+            <DialogContent>
+
               <DialogHeader>
-                <DialogTitle className="font-serif">Submit New Grievance</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label>Title</Label>
-                  <Input
-                    placeholder="Brief title of your grievance"
-                    value={newGrievance.title}
-                    onChange={(e) => setNewGrievance({ ...newGrievance, title: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Category</Label>
-                  <Select 
-                    value={newGrievance.category} 
-                    onValueChange={(value) => setNewGrievance({ ...newGrievance, category: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Description</Label>
-                  <Textarea
-                    placeholder="Describe your grievance in detail..."
-                    value={newGrievance.description}
-                    onChange={(e) => setNewGrievance({ ...newGrievance, description: e.target.value })}
-                    rows={4}
-                  />
-                </div>
-                <Button onClick={handleSubmit} variant="gradient" className="w-full">
-                  <Send size={18} />
+                <DialogTitle>
                   Submit Grievance
-                </Button>
-              </div>
+                </DialogTitle>
+              </DialogHeader>
+
+              <Input
+                placeholder="Title"
+                value={
+                  form.title
+                }
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    title:
+                      e.target.value,
+                  })
+                }
+              />
+
+              <Select
+                value={
+                  form.category
+                }
+                onValueChange={(
+                  value
+                ) =>
+                  setForm({
+                    ...form,
+                    category:
+                      value,
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  {categories.map(
+                    (c) => (
+                      <SelectItem
+                        key={
+                          c.value
+                        }
+                        value={
+                          c.value
+                        }
+                      >
+                        {c.label}
+                      </SelectItem>
+                    )
+                  )}
+                </SelectContent>
+              </Select>
+
+              <Textarea
+                rows={4}
+                placeholder="Description"
+                value={
+                  form.description
+                }
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    description:
+                      e.target
+                        .value,
+                  })
+                }
+              />
+
+              <Button
+                onClick={
+                  handleSubmit
+                }
+              >
+                <Send />
+                Submit
+              </Button>
+
             </DialogContent>
           </Dialog>
+
         </div>
 
-        {/* Status Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-warning/10 rounded-xl p-5 border border-warning/20">
-            <p className="text-sm font-medium text-warning mb-1">Pending</p>
-            <p className="text-2xl font-bold text-warning">{pendingCount}</p>
+        {/* STATUS */}
+        <div className="grid md:grid-cols-3 gap-4">
+
+          <div>Open : {pending}</div>
+
+          <div>
+            In Progress :
+            {progress}
           </div>
-          <div className="bg-primary/10 rounded-xl p-5 border border-primary/20">
-            <p className="text-sm font-medium text-primary mb-1">In Progress</p>
-            <p className="text-2xl font-bold text-primary">{inProgressCount}</p>
+
+          <div>
+            Resolved :
+            {resolved}
           </div>
-          <div className="bg-success/10 rounded-xl p-5 border border-success/20">
-            <p className="text-sm font-medium text-success mb-1">Resolved</p>
-            <p className="text-2xl font-bold text-success">{resolvedCount}</p>
-          </div>
+
         </div>
 
-        {/* Grievances List */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {grievances.map((grievance) => (
-            <GrievanceCard key={grievance.id} grievance={grievance} />
-          ))}
+        {/* LIST */}
+        <div className="grid md:grid-cols-2 gap-4">
+
+          {grievances.map(
+            (g) => (
+              <GrievanceCard
+                key={g._id}
+                grievance={g}
+              />
+            )
+          )}
+
         </div>
+
       </div>
     </DashboardLayout>
   );

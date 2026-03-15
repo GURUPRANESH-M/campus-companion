@@ -6,12 +6,15 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
+import AdminUsers from "@/pages/admin/AdminUsers";
+import HODTimetable from "./pages/hod/HODTimetable";
 
 
 /* ================= STUDENT PAGES ================= */
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentAttendance from "./pages/student/StudentAttendance";
 import StudentMarks from "./pages/student/StudentMarks";
+import StudentExams from "./pages/student/StudentExams";
 import StudentFeedback from "./pages/student/StudentFeedback";
 import StudentGrievances from "./pages/student/StudentGrievances";
 import StudentNotices from "./pages/student/StudentNotices";
@@ -22,13 +25,20 @@ import FacultyAttendance from "./pages/faculty/FacultyAttendance";
 import FacultyMarks from "./pages/faculty/FacultyMarks";
 import FacultyNotices from "./pages/faculty/FacultyNotices";
 import FacultyFeedback from "./pages/faculty/FacultyFeedback";
+import FacultyTimetable from "./pages/faculty/FacultyTimetable";
 import HODStudentPerformance from "./pages/hod/HODStudentPerformance";
 
 
 /* ================= OTHER ROLES ================= */
 import HODDashboard from "./pages/hod/HODDashboard";
 import PrincipalDashboard from "./pages/principal/PrincipalDashboard";
+import PrincipalAnnouncements from "./pages/principal/PrincipalAnnouncements";
+import PrincipalGrievances from "./pages/principal/PrincipalGrievances";
+import PrincipalReports from "./pages/principal/PrincipalReports";
 import CoEDashboard from "./pages/coe/CoEDashboard";
+import CoESchedule from "./pages/coe/CoESchedule";
+import CoEResults from "./pages/coe/CoEResults";
+import CoEGrievances from "./pages/coe/CoEGrievances";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import HODFaculty from "./pages/hod/HODFaculty";
 import HODGrievances from "./pages/hod/HODGrievances";
@@ -75,52 +85,54 @@ function AppRoutes() {
         }
       />
 
-<Route
-  path="/faculty/notices"
-  element={
-    <ProtectedRoute allowedRoles={["faculty", "admin"]}>
-      <FacultyNotices />
-    </ProtectedRoute>
-  }
-/>
+      <Route
+        path="/faculty/notices"
+        element={
+          <ProtectedRoute allowedRoles={["faculty", "admin"]}>
+            <FacultyNotices />
+          </ProtectedRoute>
+        }
+      />
 
-<Route
-  path="/faculty/feedback"
-  element={
-    <ProtectedRoute allowedRoles={["faculty"]}>
-      <FacultyFeedback />
-    </ProtectedRoute>
-  }
-/>
+      <Route path="/hod/timetable" element={<HODTimetable />} />
 
-
-<Route
-    path="/hod/performance"
-    element={
-      <ProtectedRoute allowedRoles={["hod"]}>
-        <HODStudentPerformance />
-      </ProtectedRoute>
-    }
-  />
+      <Route
+        path="/faculty/feedback"
+        element={
+          <ProtectedRoute allowedRoles={["faculty"]}>
+            <FacultyFeedback />
+          </ProtectedRoute>
+        }
+      />
 
 
-<Route
-  path="/hod/faculty"
-  element={
-    <ProtectedRoute allowedRoles={["hod"]}>
-      <HODFaculty />
-    </ProtectedRoute>
-  }
-/>
+      <Route
+        path="/hod/performance"
+        element={
+          <ProtectedRoute allowedRoles={["hod"]}>
+            <HODStudentPerformance />
+          </ProtectedRoute>
+        }
+      />
 
-<Route
-  path="/hod/grievances"
-  element={
-    <ProtectedRoute allowedRoles={["hod"]}>
-      <HODGrievances />
-    </ProtectedRoute>
-  }
-/>
+
+      <Route
+        path="/hod/faculty"
+        element={
+          <ProtectedRoute allowedRoles={["hod"]}>
+            <HODFaculty />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/hod/grievances"
+        element={
+          <ProtectedRoute allowedRoles={["hod"]}>
+            <HODGrievances />
+          </ProtectedRoute>
+        }
+      />
 
 
       {/* ================= STUDENT ================= */}
@@ -145,6 +157,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["student"]}>
             <StudentMarks />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/student/exams"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <StudentExams />
           </ProtectedRoute>
         }
       />
@@ -182,9 +202,17 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/faculty/timetable"
+        element={
+          <ProtectedRoute allowedRoles={["faculty"]}>
+            <FacultyTimetable />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
-        path="/faculty/attendance"
+        path="/faculty/attendance/:timetableId"
         element={
           <ProtectedRoute allowedRoles={["faculty"]}>
             <FacultyAttendance />
@@ -201,6 +229,8 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+
 
       {/* ================= HOD ================= */}
       <Route
@@ -221,6 +251,30 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/principal/announcements"
+        element={
+          <ProtectedRoute allowedRoles={["principal"]}>
+            <PrincipalAnnouncements />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/principal/grievances"
+        element={
+          <ProtectedRoute allowedRoles={["principal"]}>
+            <PrincipalGrievances />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/principal/reports"
+        element={
+          <ProtectedRoute allowedRoles={["principal"]}>
+            <PrincipalReports />
+          </ProtectedRoute>
+        }
+      />
 
       {/* ================= COE ================= */}
       <Route
@@ -231,6 +285,32 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/coe/schedule"
+        element={
+          <ProtectedRoute allowedRoles={["coe"]}>
+            <CoESchedule />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/coe/results"
+        element={
+          <ProtectedRoute allowedRoles={["coe"]}>
+            <CoEResults />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/coe/grievances"
+        element={
+          <ProtectedRoute allowedRoles={["coe"]}>
+            <CoEGrievances />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="/hod/timetable" element={<HODTimetable />} />
 
       {/* ================= ADMIN ================= */}
       <Route
@@ -241,6 +321,8 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/admin/users" element={<AdminUsers />} />
 
       {/* ================= 404 ================= */}
       <Route path="*" element={<NotFound />} />

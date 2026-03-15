@@ -35,13 +35,13 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/student' },
     { label: 'Attendance', icon: <Calendar size={20} />, path: '/student/attendance' },
     { label: 'Internal Marks', icon: <Award size={20} />, path: '/student/marks' },
+    { label: 'Exam Schedule', icon: <FileText size={20} />, path: '/student/exams' },
     { label: 'Faculty Feedback', icon: <MessageSquare size={20} />, path: '/student/feedback' },
     { label: 'Grievances', icon: <AlertTriangle size={20} />, path: '/student/grievances' },
     { label: 'Notices', icon: <Bell size={20} />, path: '/student/notices' },
   ],
   faculty: [
     { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/faculty' },
-    { label: 'Mark Attendance', icon: <ClipboardCheck size={20} />, path: '/faculty/attendance' },
     { label: 'Internal Marks', icon: <FileText size={20} />, path: '/faculty/marks' },
     { label: 'Feedback Reports', icon: <BarChart3 size={20} />, path: '/faculty/feedback' },
     { label: 'Post Notice', icon: <Bell size={20} />, path: '/faculty/notices' },
@@ -49,6 +49,7 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
   hod: [
     { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/hod' },
     { label: 'Student Performance', icon: <GraduationCap size={20} />, path: '/hod/performance' },
+    { label: 'Timetable', icon: <Calendar size={20} />, path: '/hod/timetable' },
     { label: 'Grievances', icon: <AlertTriangle size={20} />, path: '/hod/grievances' },
     { label: 'Faculty', icon: <Users size={20} />, path: '/hod/faculty' },
   ],
@@ -67,9 +68,6 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
   admin: [
     { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/admin' },
     { label: 'Manage Users', icon: <Users size={20} />, path: '/admin/users' },
-    { label: 'Notices', icon: <Bell size={20} />, path: '/admin/notices' },
-    { label: 'Complaints', icon: <MessageSquare size={20} />, path: '/admin/complaints' },
-    { label: 'Settings', icon: <Settings size={20} />, path: '/admin/settings' },
   ],
 };
 
