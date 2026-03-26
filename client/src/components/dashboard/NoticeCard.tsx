@@ -32,7 +32,7 @@ export function NoticeCard({ notice }: NoticeCardProps) {
         </div>
         <div className="flex items-center gap-1.5">
           <CalendarDays size={14} />
-          <span>{new Date(notice.date).toLocaleDateString('en-US', { 
+          <span>{new Date(notice.date || notice.createdAt || new Date()).toLocaleDateString('en-US', { 
             month: 'short', 
             day: 'numeric',
             year: 'numeric'

@@ -21,6 +21,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 type Grievance = {
   _id: string;
   title: string;
@@ -41,6 +48,9 @@ export default function HODGrievances() {
 
   const [loading, setLoading] =
     useState(true);
+
+  const [selectedGrievance, setSelectedGrievance] = useState<Grievance | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   /* ===============================
      FETCH GRIEVANCES
@@ -142,7 +152,7 @@ export default function HODGrievances() {
                 </TableHead>
 
                 <TableHead>
-                  Title
+                  Grievance Details
                 </TableHead>
 
                 <TableHead>
@@ -186,9 +196,18 @@ export default function HODGrievances() {
                     </p>
                   </TableCell>
 
-                  {/* TITLE */}
-                  <TableCell>
-                    {g.title}
+                  {/* DETAILS */}
+                  <TableCell 
+                    className="max-w-[300px] cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => {
+                       setSelectedGrievance(g);
+                       setIsDialogOpen(true);
+                    }}
+                  >
+                    <p className="font-semibold text-foreground mb-1 hover:underline">{g.title}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                      {g.description}
+                    </p>
                   </TableCell>
 
                   {/* STATUS */}
@@ -252,6 +271,31 @@ export default function HODGrievances() {
 
         </div>
       </div>
+
+      {/* GRIEVANCE VIEW DIALOG */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl">
+              {selectedGrievance?.title}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex gap-4 items-center">
+              <Badge variant="outline" className={statusColor(selectedGrievance?.status || "")}>
+                 {selectedGrievance?.status}
+              </Badge>
+              <p className="text-sm text-muted-foreground">
+                Submitted by: <span className="font-semibold text-foreground">{selectedGrievance?.student?.name}</span> ({selectedGrievance?.student?.email})
+              </p>
+            </div>
+            <div className="bg-muted/30 p-4 rounded-md text-foreground leading-relaxed whitespace-pre-wrap">
+              {selectedGrievance?.description}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </DashboardLayout>
   );
 }

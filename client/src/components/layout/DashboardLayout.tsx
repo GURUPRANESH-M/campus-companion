@@ -20,7 +20,8 @@ import {
   AlertTriangle,
   Award,
   BookOpen,
-  ChevronRight
+  ChevronRight,
+  Medal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -37,6 +38,7 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/student' },
     { label: 'Attendance', icon: <Calendar size={20} />, path: '/student/attendance' },
     { label: 'Internal Marks', icon: <Award size={20} />, path: '/student/marks' },
+    { label: 'Semester Results', icon: <Medal size={20} />, path: '/student/results' },
     { label: 'Exam Schedule', icon: <FileText size={20} />, path: '/student/exams' },
     { label: 'Faculty Feedback', icon: <MessageSquare size={20} />, path: '/student/feedback' },
     { label: 'Grievances', icon: <AlertTriangle size={20} />, path: '/student/grievances' },

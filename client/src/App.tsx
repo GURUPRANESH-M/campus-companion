@@ -18,6 +18,7 @@ import StudentExams from "./pages/student/StudentExams";
 import StudentFeedback from "./pages/student/StudentFeedback";
 import StudentGrievances from "./pages/student/StudentGrievances";
 import StudentNotices from "./pages/student/StudentNotices";
+import StudentResults from "./pages/student/StudentResults";
 
 /* ================= FACULTY PAGES ================= */
 import FacultyDashboard from "./pages/faculty/FacultyDashboard";
@@ -158,6 +159,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["student"]}>
             <StudentMarks />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/student/results"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <StudentResults />
           </ProtectedRoute>
         }
       />

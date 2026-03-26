@@ -308,7 +308,7 @@ exports.getStudentPerformance = async (req, res) => {
     const students = await User.find({
       role: "student",
       department,
-    }).select("_id name regNo");
+    }).select("_id name regNo").sort({ regNo: 1 });
 
     const performance = [];
 

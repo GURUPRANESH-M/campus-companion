@@ -111,3 +111,25 @@ exports.publishResults = async (req, res) => {
         res.status(500).json({ message: "Failed to publish results", error: error.message });
     }
 };
+
+exports.getMyResults = async (req, res) => {
+    try {
+        const results = await Result.find({ 
+            student: req.user._id, 
+            published: true 
+        }).sort({ semester: -1 });
+        
+        res.json(results);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch your results", error: error.message });
+    }
+};
+
+exports.deleteAllResults = async (req, res) => {
+    try {
+        await Result.deleteMany({});
+        res.json({ message: "All results successfully revoked and deleted." });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to delete results", error: error.message });
+    }
+};

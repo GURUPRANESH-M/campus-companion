@@ -18,7 +18,7 @@ exports.getStudentsForPeriod = async (req, res) => {
       department: timetable.department,
       year: timetable.year,
       section: timetable.section,
-    }).select("_id name");
+    }).select("_id name regNo").sort({ regNo: 1 });
 
     res.json({
       timetable,

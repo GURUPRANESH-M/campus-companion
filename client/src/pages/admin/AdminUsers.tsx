@@ -76,6 +76,7 @@ export default function AdminUsers() {
     department: "",
     year: "",
     section: "",
+    regNo: "",
     handlingSubjects: [] as string[],
   });
 
@@ -146,6 +147,7 @@ export default function AdminUsers() {
         department: "",
         year: "",
         section: "",
+        regNo: "",
         handlingSubjects: [],
       });
 
@@ -380,6 +382,16 @@ export default function AdminUsers() {
                   {formData.role === "student" && (
                     <>
                       <Input
+                        placeholder="Register No"
+                        value={formData.regNo}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            regNo: e.target.value,
+                          })
+                        }
+                      />
+                      <Input
                         placeholder="Year"
                         value={formData.year}
                         onChange={(e) =>
@@ -570,6 +582,42 @@ export default function AdminUsers() {
                   ))}
                 </SelectContent>
               </Select>
+
+              {/* STUDENT EDIT EXTRA FIELDS */}
+              {selectedUser.role === "student" && (
+                <>
+                  <Input
+                    placeholder="Register No"
+                    value={selectedUser.regNo || ""}
+                    onChange={(e) =>
+                      setSelectedUser({
+                        ...selectedUser,
+                        regNo: e.target.value,
+                      })
+                    }
+                  />
+                  <Input
+                    placeholder="Year"
+                    value={selectedUser.year || ""}
+                    onChange={(e) =>
+                      setSelectedUser({
+                        ...selectedUser,
+                        year: e.target.value,
+                      })
+                    }
+                  />
+                  <Input
+                    placeholder="Section"
+                    value={selectedUser.section || ""}
+                    onChange={(e) =>
+                      setSelectedUser({
+                        ...selectedUser,
+                        section: e.target.value,
+                      })
+                    }
+                  />
+                </>
+              )}
 
               {/* FACULTY EDIT HANDLING SUBJECTS */}
               {selectedUser.role === "faculty" && (

@@ -8,16 +8,20 @@ interface GrievanceCardProps {
   onClick?: () => void;
 }
 
-const statusStyles = {
+const statusStyles: Record<string, string> = {
   pending: 'bg-warning/10 text-warning border-warning/20',
+  open: 'bg-warning/10 text-warning border-warning/20',
   'in-progress': 'bg-primary/10 text-primary border-primary/20',
+  in_progress: 'bg-primary/10 text-primary border-primary/20',
   resolved: 'bg-success/10 text-success border-success/20',
   escalated: 'bg-destructive/10 text-destructive border-destructive/20',
 };
 
-const statusLabels = {
+const statusLabels: Record<string, string> = {
   pending: 'Pending',
+  open: 'Open',
   'in-progress': 'In Progress',
+  in_progress: 'In Progress',
   resolved: 'Resolved',
   escalated: 'Escalated',
 };
@@ -47,7 +51,7 @@ export function GrievanceCard({ grievance, onClick }: GrievanceCardProps) {
         </div>
         <div className="flex items-center gap-1.5">
           <CalendarDays size={14} />
-          <span>{new Date(grievance.submittedDate).toLocaleDateString('en-US', { 
+          <span>{new Date(grievance.submittedDate || grievance.createdAt || new Date()).toLocaleDateString('en-US', { 
             month: 'short', 
             day: 'numeric'
           })}</span>

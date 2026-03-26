@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import api from "@/api/api";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +13,7 @@ export default function CoEResults() {
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [revoking, setRevoking] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -44,6 +45,21 @@ export default function CoEResults() {
     }
   };
 
+  const handleRevokeAll = async () => {
+    if(!window.confirm("Are you sure you want to permanently delete and revoke all posted results? This action cannot be undone.")) return;
+    
+    try {
+      setRevoking(true);
+      await api.delete('/results/clear');
+      toast({ title: "Results Revoked", description: "Successfully cleared out old results." });
+      fetchResults(); 
+    } catch (error: any) {
+      toast({ title: "Error", description: error.response?.data?.message || "Failed to revoke results", variant: "destructive" });
+    } finally {
+      setRevoking(false);
+    }
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -55,21 +71,40 @@ export default function CoEResults() {
         const text = event.target?.result as string;
         const lines = text.split('\n').map(line => line.trim()).filter(line => line);
 
-        // Simple heuristic: if line 0 contains "reg" skip it as a header
+        // Find indices dynamically if header exists
+        let regIndex = 0;
+        let subIndex = 1;
+        let extIndex = 2; // Default assuming 3 columns
         let startIndex = 0;
-        if (lines.length > 0 && lines[0].toLowerCase().includes('reg')) {
-          startIndex = 1;
+
+        if (lines.length > 0) {
+          const headers = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/"/g, ''));
+          if (headers.some(h => h.includes('reg'))) {
+            startIndex = 1;
+            regIndex = headers.findIndex(h => h.includes('reg') || h.includes('id'));
+            subIndex = headers.findIndex(h => h.includes('sub') || h.includes('code'));
+            extIndex = headers.findIndex(h => h.includes('ext') || h.includes('mark'));
+            
+            // If they just add "Marks" at the very end of the row without a header named "Ext"
+            if (extIndex === -1) extIndex = headers.length - 1; 
+          }
         }
 
         const payload = [];
         for (let i = startIndex; i < lines.length; i++) {
-          const parts = lines[i].split(',');
-          if (parts.length >= 3) {
-            payload.push({
-              regNo: parts[0].trim(),
-              subjectCode: parts[1].trim(),
-              externalMarks: Number(parts[2].trim())
-            });
+          // Parse lines safely ignoring commas inside quotes
+          const line = lines[i];
+          const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(p => p.trim().replace(/^"|"$/g, ''));
+          
+          if (parts.length > Math.max(regIndex, subIndex, extIndex)) {
+            const externalMarks = Number(parts[extIndex]);
+            if (!isNaN(externalMarks)) {
+              payload.push({
+                regNo: parts[regIndex],
+                subjectCode: parts[subIndex],
+                externalMarks
+              });
+            }
           }
         }
 
@@ -99,7 +134,11 @@ export default function CoEResults() {
             <h1 className="text-2xl font-bold font-serif text-foreground">Examination Results</h1>
             <p className="text-muted-foreground">Upload and manage student grades and marks</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
+            <Button variant="destructive" onClick={handleRevokeAll} disabled={revoking || results.length === 0}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              {revoking ? "Revoking..." : "Revoke Results"}
+            </Button>
             <input
               type="file"
               accept=".csv"
@@ -110,7 +149,7 @@ export default function CoEResults() {
             <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
               {uploading ? "Uploading..." : "Upload Results CSV"}
             </Button>
-            <Button variant="gradient" disabled={publishing} onClick={handlePublishAll}>
+            <Button variant="gradient" disabled={publishing || results.length === 0} onClick={handlePublishAll}>
               {publishing ? "Publishing..." : "Publish Pending Results"}
             </Button>
           </div>

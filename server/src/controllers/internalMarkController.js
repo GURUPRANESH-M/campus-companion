@@ -50,7 +50,7 @@ exports.getStudentsForMarks = async (req, res) => {
       department,
       year: Number(year),
       section
-    }).select("_id name regNo email");
+    }).select("_id name regNo email").sort({ regNo: 1 });
 
     const studentIds = students.map(s => s._id);
 

@@ -16,7 +16,7 @@ exports.getAllUsers = async (req, res) => {
     if (role) filter.role = role;
     if (department) filter.department = department;
 
-    const users = await User.find(filter).select("-password");
+    const users = await User.find(filter).select("-password").sort({ role: 1, regNo: 1, name: 1 });
 
     res.json(users);
   } catch (error) {
@@ -31,7 +31,7 @@ exports.getAllUsers = async (req, res) => {
  */
 exports.createUser = async (req, res) => {
   try {
-    let { name, email, password, role, department, year, section, handlingSubjects } = req.body;
+    let { name, email, password, role, department, year, section, regNo, handlingSubjects } = req.body;
 
     if (!name || !email || !password || !role) {
       return res.status(400).json({ message: "Required fields missing" });
@@ -42,7 +42,6 @@ exports.createUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // 🔥 AUTO ASSIGN DEPARTMENT FOR SPECIAL ROLES
     if (role === "principal" || role === "admin") {
       department = "MANAGEMENT";
     }
@@ -59,6 +58,7 @@ exports.createUser = async (req, res) => {
       department,
       year,
       section,
+      regNo,
       handlingSubjects: role === "faculty" ? handlingSubjects : undefined
     });
 
@@ -84,7 +84,7 @@ exports.createUser = async (req, res) => {
  */
 exports.updateUser = async (req, res) => {
   try {
-    const { name, email, role, department, year, section, handlingSubjects, isActive } = req.body;
+    const { name, email, role, department, year, section, regNo, handlingSubjects, isActive } = req.body;
 
     const user = await User.findById(req.params.id);
 
@@ -98,6 +98,7 @@ exports.updateUser = async (req, res) => {
     user.department = department || user.department;
     user.year = year || user.year;
     user.section = section || user.section;
+    user.regNo = regNo || user.regNo;
     user.isActive = isActive ?? user.isActive;
 
     if (role === "faculty" && handlingSubjects) {

@@ -58,7 +58,8 @@ export interface Notice {
   id: string;
   title: string;
   content: string;
-  date: string;
+  date?: string;
+  createdAt?: string;
   priority: 'high' | 'medium' | 'low';
   author: string;
   authorRole: UserRole;
@@ -100,7 +101,8 @@ export interface Grievance {
   description: string;
   status: 'pending' | 'in-progress' | 'resolved' | 'escalated';
   submittedBy: string;
-  submittedDate: string;
+  submittedDate?: string;
+  createdAt?: string;
   category: string;
   department?: string;
 }
