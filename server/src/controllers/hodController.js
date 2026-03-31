@@ -134,17 +134,44 @@ exports.createFacultyTimetable = async (req, res) => {
   } catch (error) {
     console.error(error);
     if (error.code === 11000) {
-      let kv = error.keyValue;
-      if (!kv && error.writeErrors && error.writeErrors.length > 0) {
-        kv = error.writeErrors[0].err?.keyValue || error.writeErrors[0].keyValue;
+      // Robustly extract the exact day/period from MongoBulkWriteError
+      let conflictDay = null;
+      let conflictPeriod = null;
+
+      if (error.keyValue) {
+        conflictDay = error.keyValue.day;
+        conflictPeriod = error.keyValue.period;
+      } else if (error.writeErrors && error.writeErrors.length > 0) {
+        const op = error.writeErrors[0].err?.op;
+        if (op && op.day && op.period) {
+          conflictDay = op.day;
+          conflictPeriod = op.period;
+        } else {
+          const wKv = error.writeErrors[0].err?.keyValue || error.writeErrors[0].keyValue;
+          if (wKv) {
+            conflictDay = wKv.day;
+            conflictPeriod = wKv.period;
+          }
+        }
       }
 
-      if (kv) {
+      if (!conflictDay || !conflictPeriod) {
+         // Ultimate fallback parser from raw error message string
+         const dayMatch = error.message.match(/day:\s*["']?([a-zA-Z]+)["']?/);
+         const periodMatch = error.message.match(/period:\s*(\d+)/);
+         if (dayMatch && periodMatch) {
+            conflictDay = dayMatch[1];
+            conflictPeriod = parseInt(periodMatch[1]);
+         }
+      }
+
+      if (conflictDay && conflictPeriod) {
          return res.status(400).json({ 
-            message: `Conflict: ${kv.day} Period ${kv.period} is already assigned to another teacher for this class!`,
-            conflict: kv 
+            message: `Conflict: ${conflictDay} Period ${conflictPeriod} is already assigned!`,
+            conflict: { day: conflictDay, period: conflictPeriod } 
          });
       }
+
       return res.status(400).json({ message: "Conflict: This class is already assigned to another teacher at this time." });
     }
     res.status(500).json({ message: "Error creating faculty timetable" });

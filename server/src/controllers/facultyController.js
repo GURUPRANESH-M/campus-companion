@@ -1,4 +1,5 @@
 const Timetable = require("../models/Timetable");
+const User = require("../models/User");
 
 /**
  * @desc Get today's timetable for faculty
@@ -56,3 +57,13 @@ exports.getWeeklySchedule = async (req, res) => {
     res.status(500).json({ message: 'Error fetching weekly schedule' });
   }
 }
+
+exports.getProfile = async (req, res) => {
+  try {
+    const faculty = await User.findById(req.user._id).populate("handlingSubjects");
+    res.json(faculty);
+  } catch (error) {
+    console.error("Error fetching faculty profile:", error);
+    res.status(500).json({ message: "Error fetching profile" });
+  }
+};

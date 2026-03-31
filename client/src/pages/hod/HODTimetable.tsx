@@ -74,6 +74,23 @@ export default function HODTimetable() {
   };
 
   const handleChange = (day: string, period: number, field: string, value: string) => {
+    if (field === "subject" && value === "clear") {
+      setGrid((prev: any) => ({
+        ...prev,
+        [day]: {
+          ...(prev[day] || {}),
+          [period]: {
+            subject: "",
+            semester: "",
+            section: "",
+            department: ""
+          }
+        }
+      }));
+      setConflictCell(null);
+      return;
+    }
+
     setGrid((prev: any) => ({
       ...prev,
       [day]: {
@@ -189,6 +206,11 @@ export default function HODTimetable() {
                                     {sub.subjectName} ({sub.subjectCode})
                                   </SelectItem>
                                 ))}
+                                {activeFacultySubjects.length > 0 && (
+                                  <SelectItem value="clear" className="text-destructive focus:bg-destructive/10 cursor-pointer font-bold justify-center mt-1 border-t border-border">
+                                    -- Clear Slot --
+                                  </SelectItem>
+                                )}
                                 {activeFacultySubjects.length === 0 && (
                                   <SelectItem value="none" disabled>
                                     No subjects assigned

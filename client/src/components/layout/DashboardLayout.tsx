@@ -80,7 +80,17 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    const saved = localStorage.getItem('sidebarOpen');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  const toggleSidebar = () => {
+    const newState = !sidebarOpen;
+    setSidebarOpen(newState);
+    localStorage.setItem('sidebarOpen', String(newState));
+  };
 
   const role = user?.role || (localStorage.getItem('role') as UserRole);
 
@@ -110,7 +120,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         )}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
+        <div className={cn("flex h-16 items-center px-4 border-b border-sidebar-border", sidebarOpen ? "justify-between" : "justify-center")}>
           {sidebarOpen && (
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
@@ -119,7 +129,12 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
               <span className="font-serif font-bold text-white">Portal</span>
             </div>
           )}
-          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleSidebar}
+            className="text-white hover:bg-white/10 hover:text-white transition-colors"
+          >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </Button>
         </div>

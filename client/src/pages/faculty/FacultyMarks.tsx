@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,8 +37,16 @@ export default function FacultyMarks() {
   const [maxScore, setMaxScore] = useState("100");
 
   const [students, setStudents] = useState<StudentMark[]>([]);
+  const [facultySubjects, setFacultySubjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    api.get("/faculty/profile")
+      .then(res => setFacultySubjects(res.data.handlingSubjects || []))
+      .catch(console.error);
+  }, []);
 
   const handleFetchStudents = async () => {
     if (!department || !year || !section || !subject || !examType) {
@@ -97,6 +105,66 @@ export default function FacultyMarks() {
     }
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+        
+        let regIndex = 0;
+        let scoreIndex = 1;
+        let startIndex = 0;
+
+        if (lines.length > 0) {
+          const headers = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/"/g, ''));
+          if (headers.some(h => h.includes('reg'))) {
+            startIndex = 1;
+            regIndex = headers.findIndex(h => h.includes('reg') || h.includes('id'));
+            scoreIndex = headers.findIndex(h => h.includes('score') || h.includes('mark') || h.includes('int'));
+            if (scoreIndex === -1) scoreIndex = headers.length - 1;
+          }
+        }
+
+        let matchCount = 0;
+        const parsedMap = new Map();
+
+        for (let i = startIndex; i < lines.length; i++) {
+          const parts = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(p => p.trim().replace(/^"|"$/g, ''));
+          if (parts.length > Math.max(regIndex, scoreIndex)) {
+            const regNo = parts[regIndex];
+            const score = Number(parts[scoreIndex]);
+            if (regNo && !isNaN(score)) {
+              parsedMap.set(regNo, score);
+            }
+          }
+        }
+
+        setStudents(prev => {
+          let updatedMatches = 0;
+          const updated = prev.map(s => {
+            if (parsedMap.has(s.regNo)) {
+              updatedMatches++;
+              return { ...s, score: parsedMap.get(s.regNo) };
+            }
+            return s;
+          });
+          toast({ title: "Success", description: `Autofilled marks for ${updatedMatches} students from CSV.` });
+          return updated;
+        });
+
+      } catch (error) {
+        toast({ title: "Upload Failed", description: "Could not parse CSV file. Please check format.", variant: "destructive" });
+      } finally {
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -141,8 +209,22 @@ export default function FacultyMarks() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Subject Code</label>
-              <Input placeholder="e.g. CS101" value={subject} onChange={e => setSubject(e.target.value)} />
+              <label className="text-sm font-medium">Subject</label>
+              <Select value={subject} onValueChange={setSubject}>
+                <SelectTrigger><SelectValue placeholder="Select Subject" /></SelectTrigger>
+                <SelectContent>
+                  {facultySubjects.map((sub: any) => (
+                    <SelectItem key={sub.subjectCode} value={sub.subjectCode}>
+                      {sub.subjectName} ({sub.subjectCode})
+                    </SelectItem>
+                  ))}
+                  {facultySubjects.length === 0 && (
+                    <SelectItem value="none" disabled>
+                      No subjects assigned
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
 
             <Button onClick={handleFetchStudents} className="w-full" disabled={loading}>
@@ -169,9 +251,21 @@ export default function FacultyMarks() {
                     className="w-20 h-9" 
                   />
                 </div>
-                <Button onClick={handleSubmitMarks} disabled={saving} variant="gradient">
-                  {saving ? "Saving..." : "Save All Marks"}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    accept=".csv"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                  />
+                  <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+                    Upload CSV
+                  </Button>
+                  <Button onClick={handleSubmitMarks} disabled={saving} variant="gradient">
+                    {saving ? "Saving..." : "Save All Marks"}
+                  </Button>
+                </div>
               </div>
             </div>
 

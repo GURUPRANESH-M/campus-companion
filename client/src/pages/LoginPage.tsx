@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,6 +23,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -33,7 +35,7 @@ export default function LoginPage() {
       });
 
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("role", res.data.user.role);
+      login(res.data.user);
       navigate(`/${res.data.user.role}`);
     } catch (err: any) {
       toast({

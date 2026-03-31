@@ -3,7 +3,7 @@ import { User, UserRole, mockUsers } from '@/data/mockData';
 
 interface AuthContextType {
   user: User | null;
-  login: (role: UserRole) => void;
+  login: (userData: User) => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -11,17 +11,22 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem('user');
+    try { return saved ? JSON.parse(saved) : null; } catch { return null; }
+  });
 
-  const login = (role: UserRole) => {
-    const foundUser = mockUsers.find(u => u.role === role);
-    if (foundUser) {
-      setUser(foundUser);
-    }
+  const login = (userData: User) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('role', userData.role);
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
   };
 
   return (
