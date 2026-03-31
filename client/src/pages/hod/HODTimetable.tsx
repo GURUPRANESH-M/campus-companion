@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const periods = [1, 2, 3, 4, 5, 6, 7];
-const years = ["1", "2", "3", "4"];
+const semesters = ["1", "2", "3", "4", "5", "6", "7", "8"];
 const sections = ["A", "B", "C"];
 const departments = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "AIDS"];
 
@@ -21,6 +21,7 @@ export default function HODTimetable() {
 
   const [grid, setGrid] = useState<any>({});
   const [loading, setLoading] = useState(false);
+  const [conflictCell, setConflictCell] = useState<{ day: string, period: number } | null>(null);
 
   useEffect(() => {
     fetchFaculty();
@@ -30,8 +31,10 @@ export default function HODTimetable() {
   useEffect(() => {
     if (selectedFaculty) {
       loadFacultyTimetable(selectedFaculty);
+      setConflictCell(null);
     } else {
       setGrid({});
+      setConflictCell(null);
     }
   }, [selectedFaculty]);
 
@@ -57,7 +60,7 @@ export default function HODTimetable() {
         if (!newGrid[entry.day]) newGrid[entry.day] = {};
         newGrid[entry.day][entry.period] = {
           subject: entry.subject || "",
-          year: entry.year?.toString() || "",
+          semester: entry.semester?.toString() || "",
           section: entry.section || "",
           department: entry.department || ""
         };
@@ -81,6 +84,7 @@ export default function HODTimetable() {
         }
       }
     }));
+    setConflictCell(null); // Clear conflict visual on edit
   };
 
   const handleSubmit = async () => {
@@ -88,6 +92,8 @@ export default function HODTimetable() {
       toast({ title: "Validation Error", description: "Please select a teacher first", variant: "destructive" });
       return;
     }
+    
+    setConflictCell(null);
 
     try {
       const weekSchedule = days.map(day => ({
@@ -95,7 +101,7 @@ export default function HODTimetable() {
         periods: periods.map(period => ({
           period,
           subject: grid[day]?.[period]?.subject || "",
-          year: grid[day]?.[period]?.year || "",
+          semester: grid[day]?.[period]?.semester || "",
           section: grid[day]?.[period]?.section || "",
           department: grid[day]?.[period]?.department || ""
         }))
@@ -111,6 +117,11 @@ export default function HODTimetable() {
         description: "Teacher's timetable saved successfully"
       });
     } catch (error: any) {
+      if (error.response?.data?.conflict) {
+        const { day, period } = error.response.data.conflict;
+        setConflictCell({ day, period: Number(period) });
+      }
+
       toast({
         title: "Error",
         description: error.response?.data?.message || "Failed to save timetable",
@@ -160,9 +171,11 @@ export default function HODTimetable() {
                   {days.map(day => (
                     <tr key={day} className="hover:bg-primary/5 transition-colors">
                       <td className="border p-4 font-semibold text-center">{day}</td>
-                      {periods.map(period => (
+                      {periods.map(period => {
+                        const isConflict = conflictCell?.day === day && conflictCell?.period === period;
+                        return (
                         <td key={period} className="border p-2">
-                          <Card className="p-2 space-y-2 border-primary/20 bg-background/50 hover:shadow-md transition">
+                          <Card className={`p-2 space-y-2 border-primary/20 hover:shadow-md transition ${isConflict ? 'bg-destructive/10 border-destructive ring-2 ring-destructive ring-offset-1' : 'bg-background/50'}`}>
                             <Select
                               value={grid[day]?.[period]?.subject || ""}
                               onValueChange={(val) => handleChange(day, period, "subject", val)}
@@ -196,14 +209,14 @@ export default function HODTimetable() {
                                 </SelectContent>
                               </Select>
                               <Select
-                                value={grid[day]?.[period]?.year || ""}
-                                onValueChange={(val) => handleChange(day, period, "year", val)}
+                                value={grid[day]?.[period]?.semester || ""}
+                                onValueChange={(val) => handleChange(day, period, "semester", val)}
                               >
                                 <SelectTrigger className="h-8 text-xs w-[32%] px-1">
-                                  <SelectValue placeholder="Yr" />
+                                  <SelectValue placeholder="Sem" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+                                  {semesters.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
                                 </SelectContent>
                               </Select>
                               <Select
@@ -220,7 +233,8 @@ export default function HODTimetable() {
                             </div>
                           </Card>
                         </td>
-                      ))}
+                        );
+                      })}
                     </tr>
                   ))}
                 </tbody>

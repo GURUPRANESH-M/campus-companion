@@ -12,6 +12,11 @@ const timetableSchema = new mongoose.Schema({
     required: true,
   },
 
+  semester: {
+    type: Number,
+    required: true,
+  },
+
   section: {
     type: String,
     required: true,

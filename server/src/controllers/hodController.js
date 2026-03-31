@@ -101,14 +101,18 @@ exports.createFacultyTimetable = async (req, res) => {
 
     for (const dayData of weekSchedule) {
       const { day, periods } = dayData;
-      for (const periodData of periods) {
-        const { period, subject, year, section, department: classDepartment } = periodData;
+      for (const periodData of dayData.periods) {
+        let { period, subject, semester, section, department: classDepartment } = periodData;
         
-        // Only add entry if year, section, subject and department are provided
-        if (subject && year && section && classDepartment) {
+        // Only add entry if semester, section, subject and department are provided
+        if (subject && semester && section && classDepartment) {
+          semester = Number(semester);
+          const year = Math.ceil(semester / 2); // 1,2->1; 3,4->2; 5,6->3; 7,8->4
+
           timetableEntries.push({
             department: classDepartment,
-            year: Number(year),
+            year,
+            semester,
             section,
             day,
             period,
@@ -130,6 +134,17 @@ exports.createFacultyTimetable = async (req, res) => {
   } catch (error) {
     console.error(error);
     if (error.code === 11000) {
+      let kv = error.keyValue;
+      if (!kv && error.writeErrors && error.writeErrors.length > 0) {
+        kv = error.writeErrors[0].err?.keyValue || error.writeErrors[0].keyValue;
+      }
+
+      if (kv) {
+         return res.status(400).json({ 
+            message: `Conflict: ${kv.day} Period ${kv.period} is already assigned to another teacher for this class!`,
+            conflict: kv 
+         });
+      }
       return res.status(400).json({ message: "Conflict: This class is already assigned to another teacher at this time." });
     }
     res.status(500).json({ message: "Error creating faculty timetable" });
