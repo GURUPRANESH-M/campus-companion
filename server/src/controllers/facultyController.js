@@ -67,3 +67,18 @@ exports.getProfile = async (req, res) => {
     res.status(500).json({ message: "Error fetching profile" });
   }
 };
+
+exports.getDepartmentFacultyList = async (req, res) => {
+  try {
+    const faculty = await User.find({
+      role: "faculty",
+      department: req.user.department,
+    })
+      .select("name email department handlingSubjects")
+      .populate("handlingSubjects");
+
+    res.json(faculty);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

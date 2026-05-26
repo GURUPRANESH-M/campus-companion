@@ -55,7 +55,7 @@ export default function FacultyFeedback() {
               key={subject}
               className="bg-card border rounded-xl p-6 shadow-sm"
             >
-              <h2 className="text-xl font-semibold mb-2">{subject}</h2>
+              <h2 className="text-xl font-semibold mb-2">{subject === "N/A" ? "Full Detailed Review" : subject}</h2>
               <p className="text-sm text-muted-foreground mb-4">
                 Average Rating: <strong>{avg.toFixed(1)} / 5</strong>
               </p>

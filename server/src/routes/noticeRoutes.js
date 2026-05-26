@@ -10,7 +10,7 @@ const { protect, authorize } = require("../middlewares/authMiddleware");
 router.post(
   "/",
   protect,
-  authorize("faculty", "admin"),
+  authorize("faculty", "admin", "principal"),
   createNotice
 );
 

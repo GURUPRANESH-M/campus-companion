@@ -94,6 +94,14 @@ exports.getAllGrievances =
         ];
       }
 
+      // Principal sees escalated grievances + their own resolved ones
+      if (req.user.role === "principal") {
+        query.$or = [
+          { status: "escalated" },
+          { status: "resolved", handledBy: req.user._id }
+        ];
+      }
+
       const grievances =
         await Grievance.find(query)
           .populate(

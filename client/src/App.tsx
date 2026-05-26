@@ -136,6 +136,15 @@ function AppRoutes() {
         }
       />
 
+      <Route
+        path="/hod/announcements"
+        element={
+          <ProtectedRoute allowedRoles={["hod"]}>
+            <StudentNotices />
+          </ProtectedRoute>
+        }
+      />
+
 
       {/* ================= STUDENT ================= */}
       <Route
@@ -236,6 +245,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["faculty"]}>
             <FacultyMarks />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/faculty/announcements"
+        element={
+          <ProtectedRoute allowedRoles={["faculty"]}>
+            <StudentNotices />
           </ProtectedRoute>
         }
       />

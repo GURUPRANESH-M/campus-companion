@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,11 +14,7 @@ import { Star, Send, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import api from "@/api/api";
 
-/* TEMP – later fetch from backend */
-const facultyList = [
-  { id: "694d7db42c9dbb49dd49fe67", name: "Dr. Ravi Kumar", subject: "DBMS" },
-  { id: "694d7db42c9dbb49dd49fe68", name: "Dr. Priya Patel", subject: "DS" },
-];
+
 
 const categories = [
   "Teaching Quality",
@@ -34,6 +30,29 @@ export default function StudentFeedback() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const [facultyList, setFacultyList] = useState<any[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFaculty = async () => {
+      try {
+        setDataLoading(true);
+        const res = await api.get('/faculty/department');
+        setFacultyList(res.data);
+      } catch (error) {
+        console.error("Failed to fetch faculty", error);
+        toast({
+          title: "Error",
+          description: "Could not load the faculty list.",
+          variant: "destructive",
+        });
+      } finally {
+        setDataLoading(false);
+      }
+    };
+    fetchFaculty();
+  }, [toast]);
 
   const handleRating = (category: string, rating: number) => {
     setRatings((prev) => ({ ...prev, [category]: rating }));
@@ -59,7 +78,7 @@ export default function StudentFeedback() {
       await api.post("/feedback", {
         faculty: selectedFaculty,
         subject:
-          facultyList.find((f) => f.id === selectedFaculty)?.subject || "",
+          facultyList.find((f) => f._id === selectedFaculty)?.handlingSubjects?.[0]?.subjectName || "Full Detailed Review",
         rating: Math.round(avgRating),
         comment: comments,
       });
@@ -130,8 +149,8 @@ export default function StudentFeedback() {
             </SelectTrigger>
             <SelectContent>
               {facultyList.map((f) => (
-                <SelectItem key={f.id} value={f.id}>
-                  {f.name} – {f.subject}
+                <SelectItem key={f._id} value={f._id}>
+                  {f.name} {f.handlingSubjects && f.handlingSubjects.length > 0 ? `– ${f.handlingSubjects[0].subjectName}` : ''}
                 </SelectItem>
               ))}
             </SelectContent>

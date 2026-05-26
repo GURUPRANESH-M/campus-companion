@@ -48,12 +48,14 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/faculty' },
     { label: 'Internal Marks', icon: <FileText size={20} />, path: '/faculty/marks' },
     { label: 'Feedback Reports', icon: <BarChart3 size={20} />, path: '/faculty/feedback' },
-    { label: 'Post Notice', icon: <Bell size={20} />, path: '/faculty/notices' },
+    { label: 'Announcements', icon: <Bell size={20} />, path: '/faculty/announcements' },
+    { label: 'Post Notice', icon: <FileText size={20} />, path: '/faculty/notices' },
   ],
   hod: [
     { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/hod' },
     { label: 'Student Performance', icon: <GraduationCap size={20} />, path: '/hod/performance' },
     { label: 'Timetable', icon: <Calendar size={20} />, path: '/hod/timetable' },
+    { label: 'Announcements', icon: <Bell size={20} />, path: '/hod/announcements' },
     { label: 'Grievances', icon: <AlertTriangle size={20} />, path: '/hod/grievances' },
     { label: 'Faculty', icon: <Users size={20} />, path: '/hod/faculty' },
   ],
@@ -62,7 +64,6 @@ const roleNavItems: Record<UserRole, NavItem[]> = {
     { label: 'Announcements', icon: <Bell size={20} />, path: '/principal/announcements' },
     { label: 'Curriculum Subjects', icon: <BookOpen size={20} />, path: '/principal/subjects' },
     { label: 'Grievances', icon: <AlertTriangle size={20} />, path: '/principal/grievances' },
-    { label: 'Reports', icon: <BarChart3 size={20} />, path: '/principal/reports' },
   ],
   coe: [
     { label: 'Dashboard', icon: <LayoutDashboard size={20} />, path: '/coe' },

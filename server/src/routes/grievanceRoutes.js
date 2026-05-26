@@ -38,14 +38,14 @@ router.get(
 router.get(
   "/",
   protect,
-  authorize("admin", "hod"),
+  authorize("admin", "hod", "principal"),
   getAllGrievances
 );
 
 router.put(
   "/:id",
   protect,
-  authorize("admin", "hod"),
+  authorize("admin", "hod", "principal"),
   updateGrievanceStatus
 );
 

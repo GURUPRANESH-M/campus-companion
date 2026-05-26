@@ -12,6 +12,7 @@ export default function FacultyDashboard() {
   const navigate = useNavigate();
 
   const [schedule, setSchedule] = useState<any[]>([]);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,10 +21,14 @@ export default function FacultyDashboard() {
 
   const fetchSchedule = async () => {
     try {
-      const res = await api.get("/faculty/today");
-      setSchedule(res.data);
+      const [scheduleRes, profileRes] = await Promise.all([
+        api.get("/faculty/today"),
+        api.get("/faculty/profile")
+      ]);
+      setSchedule(scheduleRes.data);
+      setProfile(profileRes.data);
     } catch (error) {
-      console.error("Error loading schedule");
+      console.error("Error loading dashboard data");
     } finally {
       setLoading(false);
     }
@@ -42,10 +47,10 @@ export default function FacultyDashboard() {
         {/* Profile */}
         <div className="bg-card rounded-xl p-6 border shadow-sm">
           <h1 className="text-2xl font-bold">
-            {user?.name}
+            {profile?.name || user?.name}
           </h1>
-          <p className="text-muted-foreground">
-            Department: {user?.department}
+          <p className="text-muted-foreground mt-1">
+            Department: <span className="font-medium text-foreground">{profile?.department || user?.department || "N/A"}</span>
           </p>
         </div>
 

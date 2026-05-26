@@ -111,6 +111,9 @@ export default function HODGrievances() {
       case "in_progress":
         return "text-warning border-warning";
 
+      case "escalated":
+        return "text-destructive border-transparent bg-destructive/10";
+
       default:
         return "text-destructive border-destructive";
     }
@@ -252,6 +255,10 @@ export default function HODGrievances() {
 
                         <SelectItem value="in_progress">
                           In Progress
+                        </SelectItem>
+                        
+                        <SelectItem value="escalated">
+                          Escalate
                         </SelectItem>
 
                         <SelectItem value="resolved">

@@ -9,7 +9,7 @@ export default function StudentDashboard() {
   const { user } = useAuth();
   const [attendance, setAttendance] = useState<any[]>([]);
   const [loadingAtt, setLoadingAtt] = useState(true);
-  
+
   const [curriculumSubjects, setCurriculumSubjects] = useState(0);
   const [loadingSub, setLoadingSub] = useState(true);
 
@@ -48,9 +48,9 @@ export default function StudentDashboard() {
   const avgAttendance =
     attendance.length > 0
       ? Math.round(
-          attendance.reduce((acc, curr) => acc + curr.percentage, 0) /
-            attendance.length
-        )
+        attendance.reduce((acc, curr) => acc + curr.percentage, 0) /
+        attendance.length
+      )
       : 0;
 
   const totalSubjects = 18;
